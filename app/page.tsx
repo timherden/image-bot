@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Loader2, Download } from "lucide-react";
 import { Toaster, toast } from "sonner";
+import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -75,8 +76,9 @@ export default function ImageGeneratorPage() {
 
       setImages(data.images || []);
       toast.success("Images generated successfully!");
-    } catch (error: any) {
-      toast.error(error.message || "Failed to generate images");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast.error(errorMessage || "Failed to generate images");
       console.error(error);
     } finally {
       setIsGenerating(false);
@@ -86,7 +88,7 @@ export default function ImageGeneratorPage() {
   return (
     <div className="container mx-auto py-10">
       <h1 className="text-3xl font-bold mb-8 text-center">
-        Tim's AI Image Generator
+        Tim&apos;s AI Image Generator
       </h1>
 
       <div className="grid grid-cols-1 gap-10 md:grid-cols-2">
@@ -294,14 +296,16 @@ export default function ImageGeneratorPage() {
                 <CardContent className="p-2">
                   <div className="relative group">
                     <div className="w-full h-0 pb-[100%] relative overflow-hidden rounded-md">
-                      <img
+                      <Image
                         src={
                           image.startsWith("data:")
                             ? image
                             : `data:image/png;base64,${image}`
                         }
                         alt={`Generated image ${index + 1}`}
-                        className="absolute inset-0 w-full h-full object-contain bg-black/5 dark:bg-white/5"
+                        fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        className="object-contain bg-black/5 dark:bg-white/5"
                       />
                     </div>
                     <Button

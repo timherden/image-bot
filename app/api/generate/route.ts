@@ -81,10 +81,11 @@ export async function POST(request: NextRequest) {
     const images = await Promise.all(imagePromises);
 
     return NextResponse.json({ images });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('Error generating images:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to generate images' },
+      { error: errorMessage || 'Failed to generate images' },
       { status: 500 }
     );
   }
