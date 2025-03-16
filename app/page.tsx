@@ -21,8 +21,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { downloadImage } from "@/lib/downloadImage";
 import { StyleSelector } from "@/components/StyleSelector";
+import { ImageUpload } from "@/components/ImageUpload";
 
 // Form validation schema
 const formSchema = z.object({
@@ -32,6 +34,9 @@ const formSchema = z.object({
   imageCount: z.number().min(1).max(3),
   aspectRatio: z.enum(["1:1", "16:9", "9:16", "4:3", "3:4"]),
   style: z.string().default("none"),
+  referenceImage: z.string().optional(),
+  useReferenceContent: z.boolean().default(true),
+  useReferenceStyle: z.boolean().default(false),
 });
 
 export default function ImageGeneratorPage() {
@@ -46,6 +51,9 @@ export default function ImageGeneratorPage() {
       imageCount: 1,
       aspectRatio: "1:1",
       style: "none",
+      referenceImage: "",
+      useReferenceContent: true,
+      useReferenceStyle: false,
     },
   });
 
@@ -65,6 +73,9 @@ export default function ImageGeneratorPage() {
           count: values.imageCount,
           aspectRatio: values.aspectRatio,
           style: values.style,
+          referenceImage: values.referenceImage || undefined,
+          useReferenceContent: values.useReferenceContent,
+          useReferenceStyle: values.useReferenceStyle,
         }),
       });
 
@@ -260,6 +271,71 @@ export default function ImageGeneratorPage() {
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="referenceImage"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Reference Image (Optional)</FormLabel>
+                    <FormControl>
+                      <ImageUpload
+                        value={field.value || ''}
+                        onChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Upload an image as reference for content or style.
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
+
+              {form.watch('referenceImage') && (
+                <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="useReferenceContent"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>Use content from reference image</FormLabel>
+                          <FormDescription>
+                            Consider the content/subjects in the reference image.
+                          </FormDescription>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="useReferenceStyle"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>Use style from reference image</FormLabel>
+                          <FormDescription>
+                            Imitate the visual style of the reference image.
+                          </FormDescription>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
 
               <Button type="submit" disabled={isGenerating} className="w-full">
                 {isGenerating ? (

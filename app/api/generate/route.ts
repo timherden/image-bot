@@ -3,7 +3,15 @@ import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedroc
 
 export async function POST(request: NextRequest) {
   try {
-    const { prompt, count = 1, aspectRatio = '1:1', style = 'none' } = await request.json();
+    const { 
+      prompt, 
+      count = 1, 
+      aspectRatio = '1:1', 
+      style = 'none',
+      referenceImage,
+      useReferenceContent = false,
+      useReferenceStyle = false 
+    } = await request.json();
 
     if (!prompt) {
       return NextResponse.json(
@@ -51,23 +59,59 @@ export async function POST(request: NextRequest) {
           height = 1024;
       }
       
+      // Define type for Stability API request
+      interface StabilityApiRequest {
+        text_prompts: Array<{text: string; weight: number}>;
+        cfg_scale: number;
+        height: number;
+        width: number;
+        steps: number;
+        seed: number;
+        init_image?: string;
+        image_strength?: number;
+      }
+      
+      // Prepare request body based on options
+      const requestBody: StabilityApiRequest = {
+        text_prompts: [
+          {
+            text: style !== 'none' ? `${prompt}, in the style of ${style}` : prompt,
+            weight: 1.0
+          }
+        ],
+        cfg_scale: 8,
+        height,
+        width,
+        steps: 50,
+        seed: Math.floor(Math.random() * 4294967295)
+      };
+
+      // Add reference image if provided
+      if (referenceImage && (useReferenceContent || useReferenceStyle)) {
+        // Extract base64 data from data URL
+        const base64Data = referenceImage.split(',')[1];
+        
+        // Add reference image to request
+        requestBody.init_image = base64Data;
+        
+        // Adjust strength based on use case
+        if (useReferenceContent && useReferenceStyle) {
+          // Balance between content and style
+          requestBody.image_strength = 0.5;
+        } else if (useReferenceContent) {
+          // Stronger influence for content preservation
+          requestBody.image_strength = 0.7;
+        } else if (useReferenceStyle) {
+          // Lighter influence for style transfer
+          requestBody.image_strength = 0.3;
+        }
+      }
+
       const command = new InvokeModelCommand({
         modelId,
         contentType: 'application/json',
         accept: 'application/json',
-        body: JSON.stringify({
-          text_prompts: [
-            {
-              text: style !== 'none' ? `${prompt}, in the style of ${style}` : prompt,
-              weight: 1.0
-            }
-          ],
-          cfg_scale: 8,
-          height,
-          width,
-          steps: 50,
-          seed: Math.floor(Math.random() * 4294967295)
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       const response = await client.send(command);
