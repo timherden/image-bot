@@ -1,22 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Image Generator
+
+A Next.js application that allows users to generate images using Amazon Bedrock's Stability AI Stable Diffusion XL model. Users can provide prompts to generate up to 3 images at once and download their favorites.
+
+## Features
+
+- Generate 1-3 images per request using text prompts
+- Real-time image generation with loading states
+- Download generated images
+- Clean, responsive UI using shadcn/ui components
+
+## Prerequisites
+
+- AWS account with Bedrock access
+- AWS credentials with permissions to call the Bedrock API
 
 ## Getting Started
 
-First, run the development server:
+1. Clone the repository
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Configure AWS credentials:
+   - Copy `.env.local.example` to `.env.local`
+   - Add your AWS credentials in the `.env.local` file
+
+4. Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
