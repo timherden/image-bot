@@ -138,20 +138,42 @@ export default function ImageGeneratorPage() {
                 control={form.control}
                 name="imageCount"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Number of Images: {field.value}</FormLabel>
-                    <FormControl>
-                      <Slider
-                        min={1}
-                        max={3}
-                        step={1}
-                        value={[field.value]}
-                        onValueChange={(value) => field.onChange(value[0])}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Generate between 1-3 images at once.
-                    </FormDescription>
+                  <FormItem className="space-y-6">
+                    <div className="space-y-1">
+                      <FormLabel>Number of Images</FormLabel>
+                      <FormDescription>
+                        Generate between 1-3 images at once.
+                      </FormDescription>
+                    </div>
+                    
+                    <div className="pt-2">
+                      <div className="flex justify-between mb-2">
+                        {[1, 2, 3].map(num => (
+                          <div 
+                            key={num}
+                            className={`w-10 h-10 flex items-center justify-center rounded-full cursor-pointer ${
+                              field.value === num 
+                                ? 'bg-primary text-primary-foreground' 
+                                : 'bg-muted hover:bg-muted/80'
+                            }`}
+                            onClick={() => field.onChange(num)}
+                          >
+                            {num}
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <FormControl>
+                        <Slider
+                          min={1}
+                          max={3}
+                          step={1}
+                          value={[field.value]}
+                          onValueChange={(value) => field.onChange(value[0])}
+                          className="mt-2"
+                        />
+                      </FormControl>
+                    </div>
                   </FormItem>
                 )}
               />
@@ -165,93 +187,42 @@ export default function ImageGeneratorPage() {
                     <FormControl>
                       <RadioGroup
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                         className="grid grid-cols-2 sm:grid-cols-5 gap-4"
                       >
-                        <div
-                          className="flex flex-col items-center gap-2 cursor-pointer"
-                          onClick={() => field.onChange("1:1")}
-                        >
-                          <div className="border border-gray-300 dark:border-gray-700 rounded-md bg-muted/20 w-24 h-24 flex items-center justify-center relative">
-                            <RadioGroupItem
-                              value="1:1"
-                              id="ratio-1:1"
-                              className="absolute top-2 left-2"
-                            />
-                            <div className="w-16 h-16 bg-primary/10 rounded"></div>
-                          </div>
-                          <label htmlFor="ratio-1:1" className="text-xs">
-                            Square (1:1)
+                        {[
+                          { value: "1:1", label: "Square (1:1)", width: "w-16", height: "h-16" },
+                          { value: "16:9", label: "Landscape (16:9)", width: "w-16", height: "h-9" },
+                          { value: "9:16", label: "Portrait (9:16)", width: "w-9", height: "h-16" },
+                          { value: "4:3", label: "Standard (4:3)", width: "w-16", height: "h-12" },
+                          { value: "3:4", label: "Portrait (3:4)", width: "w-12", height: "h-16" }
+                        ].map((ratio) => (
+                          <label
+                            key={ratio.value}
+                            htmlFor={`ratio-${ratio.value}`}
+                            className={`flex flex-col items-center gap-2 cursor-pointer transition-colors ${field.value === ratio.value ? 'text-primary' : ''}`}
+                          >
+                            <div 
+                              className={`border ${field.value === ratio.value ? 'border-primary dark:border-primary' : 'border-gray-300 dark:border-gray-700'} rounded-md bg-muted/20 w-24 h-24 flex items-center justify-center relative transition-colors hover:border-primary/50`}
+                              onClick={() => field.onChange(ratio.value)}
+                            >
+                              <RadioGroupItem
+                                value={ratio.value}
+                                id={`ratio-${ratio.value}`}
+                                className="absolute top-2 left-2 sr-only"
+                              />
+                              <div className={`${ratio.width} ${ratio.height} bg-primary/10 rounded`}></div>
+                              {field.value === ratio.value && (
+                                <div className="absolute top-2 left-2 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+                                </div>
+                              )}
+                            </div>
+                            <span className="text-xs">
+                              {ratio.label}
+                            </span>
                           </label>
-                        </div>
-
-                        <div
-                          className="flex flex-col items-center gap-2 cursor-pointer"
-                          onClick={() => field.onChange("16:9")}
-                        >
-                          <div className="border border-gray-300 dark:border-gray-700 rounded-md bg-muted/20 w-24 h-24 flex items-center justify-center relative">
-                            <RadioGroupItem
-                              value="16:9"
-                              id="ratio-16:9"
-                              className="absolute top-2 left-2"
-                            />
-                            <div className="w-16 h-9 bg-primary/10 rounded"></div>
-                          </div>
-                          <label htmlFor="ratio-16:9" className="text-xs">
-                            Landscape (16:9)
-                          </label>
-                        </div>
-
-                        <div
-                          className="flex flex-col items-center gap-2 cursor-pointer"
-                          onClick={() => field.onChange("9:16")}
-                        >
-                          <div className="border border-gray-300 dark:border-gray-700 rounded-md bg-muted/20 w-24 h-24 flex items-center justify-center relative">
-                            <RadioGroupItem
-                              value="9:16"
-                              id="ratio-9:16"
-                              className="absolute top-2 left-2"
-                            />
-                            <div className="w-9 h-16 bg-primary/10 rounded"></div>
-                          </div>
-                          <label htmlFor="ratio-9:16" className="text-xs">
-                            Portrait (9:16)
-                          </label>
-                        </div>
-
-                        <div
-                          className="flex flex-col items-center gap-2 cursor-pointer"
-                          onClick={() => field.onChange("4:3")}
-                        >
-                          <div className="border border-gray-300 dark:border-gray-700 rounded-md bg-muted/20 w-24 h-24 flex items-center justify-center relative">
-                            <RadioGroupItem
-                              value="4:3"
-                              id="ratio-4:3"
-                              className="absolute top-2 left-2"
-                            />
-                            <div className="w-16 h-12 bg-primary/10 rounded"></div>
-                          </div>
-                          <label htmlFor="ratio-4:3" className="text-xs">
-                            Standard (4:3)
-                          </label>
-                        </div>
-
-                        <div
-                          className="flex flex-col items-center gap-2 cursor-pointer"
-                          onClick={() => field.onChange("3:4")}
-                        >
-                          <div className="border border-gray-300 dark:border-gray-700 rounded-md bg-muted/20 w-24 h-24 flex items-center justify-center relative">
-                            <RadioGroupItem
-                              value="3:4"
-                              id="ratio-3:4"
-                              className="absolute top-2 left-2"
-                            />
-                            <div className="w-12 h-16 bg-primary/10 rounded"></div>
-                          </div>
-                          <label htmlFor="ratio-3:4" className="text-xs">
-                            Portrait (3:4)
-                          </label>
-                        </div>
+                        ))}
                       </RadioGroup>
                     </FormControl>
                     <FormDescription>
