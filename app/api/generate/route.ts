@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
+import { savePrompt } from '@/lib/supabase';
 
 export async function POST(request: NextRequest) {
   try {
@@ -123,6 +124,17 @@ export async function POST(request: NextRequest) {
 
     // Execute all requests in parallel
     const images = await Promise.all(imagePromises);
+
+    // Save prompt to Supabase (don't await to prevent blocking response)
+    savePrompt({
+      prompt_text: prompt,
+      style: style !== 'none' ? style : undefined,
+      aspect_ratio: aspectRatio,
+      reference_image_used: !!referenceImage,
+    }).catch(error => {
+      // Just log the error but don't fail the request
+      console.error('Failed to save prompt to Supabase:', error);
+    });
 
     return NextResponse.json({ images });
   } catch (error: unknown) {

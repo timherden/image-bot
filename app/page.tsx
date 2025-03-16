@@ -9,6 +9,7 @@ import { Toaster, toast } from "sonner";
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import {
   Form,
   FormControl,
@@ -98,9 +99,16 @@ export default function ImageGeneratorPage() {
 
   return (
     <div className="container mx-auto py-10">
-      <h1 className="text-3xl font-bold mb-8 text-center">
-        Tim&apos;s AI Image Generator
-      </h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-center flex-1">
+          Tim&apos;s AI Image Generator
+        </h1>
+        <Link href="/history" className="text-sm">
+          <Button variant="outline" size="sm">
+            View History
+          </Button>
+        </Link>
+      </div>
 
       <div className="grid grid-cols-1 gap-10 md:grid-cols-2">
         <div>
